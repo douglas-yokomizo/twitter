@@ -6,7 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 
 from .models import Profile, Tweet
-from .forms import TweetForm, SignUpForm
+from .forms import TweetForm, SignUpForm, ProfilePicForm
 
 def home(request):
     if request.user.is_authenticated:
@@ -77,7 +77,7 @@ def login_user(request):
 
 def logout_user(request):
 	logout(request)
-	messages.success(request, ("You Have Been Logged Out. Sorry to Meep You Go..."))
+	messages.success(request, ("You Have Been Logged Out. Sorry to See You Go..."))
 	return redirect('home')
 
 def register_user(request):
@@ -100,16 +100,21 @@ def register_user(request):
 	return render(request, "register.html", {'form':form})
 
 def update_user(request):
-	if request.user.is_authenticated:
-		current_user = User.objects.get(id=request.user.id)
-		form = SignUpForm(request.POST or None, instance=current_user)
-		if form.is_valid():
-			form.save()
-			login(request, current_user)
-			messages.success(request, ("Your Profile Has Been Updated!"))
-			return redirect('home')
+    if request.user.is_authenticated:
+        current_user = User.objects.get(id=request.user.id)
+        profile_user = Profile.objects.get(user__id=request.user.id)
+        # Get Forms
+        user_form = SignUpForm(request.POST or None, request.FILES or None, instance=current_user)
+        profile_form = ProfilePicForm(request.POST or None, request.FILES or None, instance=profile_user)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
 
-		return render(request, "update_user.html", {'form':form})
-	else:
-		messages.success(request, ("You Must Be Logged In To View That Page..."))
-		return redirect('home')
+            login(request, current_user)
+            messages.success(request, ("Your Profile Has Been Updated!"))
+            return redirect('home')
+
+        return render(request, "update_user.html", {'user_form':user_form, 'profile_form':profile_form})
+    else:
+        messages.success(request, ("You Must Be Logged In To View That Page..."))
+        return redirect('home')
