@@ -208,3 +208,30 @@ def delete_tweet(request, pk):
 	else:
 		messages.success(request, ("Please Log In To Continue..."))
 		return redirect(request.META.get("HTTP_REFERER"))
+	
+def edit_tweet(request,pk):
+	if request.user.is_authenticated:
+		# Grab The tweet!
+		tweet = get_object_or_404(Tweet, id=pk)
+
+		# Check to see if you own the tweet
+		if request.user.username == tweet.user.username:
+
+			form = TweetForm(request.POST or None, instance=tweet)
+			if request.method == "POST":
+				if form.is_valid():
+					tweet = form.save(commit=False)
+					tweet.user = request.user
+					tweet.save()
+					messages.success(request, ("Your tweet Has Been Updated!"))
+					return redirect('home')
+			else:
+				return render(request, "edit_tweet.html", {'form':form, 'tweet':tweet})
+
+		else:
+			messages.success(request, ("You Don't Own That tweet!!"))
+			return redirect('home')
+
+	else:
+		messages.success(request, ("Please Log In To Continue..."))
+		return redirect('home')
