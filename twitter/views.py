@@ -91,7 +91,30 @@ def profile(request, pk):
     else:
         messages.success(request, ("You must be logged in to view this page..."))
         return redirect('home')
-    
+
+def followers(request, pk):
+	if request.user.is_authenticated:
+		if request.user.id == pk:
+			profiles = Profile.objects.get(user_id=pk)
+			return render(request, 'followers.html', {"profiles":profiles})
+		else:
+			messages.success(request, ("That's Not Your Profile Page..."))
+			return redirect('home')	
+	else:
+		messages.success(request, ("You Must Be Logged In To View This Page..."))
+		return redirect('home')
+
+def follows(request, pk):
+	if request.user.is_authenticated:
+		if request.user.id == pk:
+			profiles = Profile.objects.get(user_id=pk)
+			return render(request, 'follows.html', {"profiles":profiles})
+		else:
+			messages.success(request, ("That's Not Your Profile Page..."))
+			return redirect('home')	
+	else:
+		messages.success(request, ("You Must Be Logged In To View This Page..."))
+		return redirect('home')
 
 def login_user(request):
     if request.method == "POST":
@@ -167,3 +190,21 @@ def tweet_like(request, pk):
 	else:
 		messages.success(request, ("You Must Be Logged In To View That Page..."))
 		return redirect('home')
+
+def delete_tweet(request, pk):
+	if request.user.is_authenticated:
+		tweet = get_object_or_404(Tweet, id=pk)
+		# Check to see if you own the tweet
+		if request.user.username == tweet.user.username:
+			# Delete The tweet
+			tweet.delete()
+
+			messages.success(request, ("The tweet Has Been Deleted!"))
+			return redirect(request.META.get("HTTP_REFERER"))	
+		else:
+			messages.success(request, ("You Don't Own That tweet!!"))
+			return redirect('home')
+
+	else:
+		messages.success(request, ("Please Log In To Continue..."))
+		return redirect(request.META.get("HTTP_REFERER"))
