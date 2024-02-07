@@ -128,10 +128,7 @@ def tweet_like(request, pk):
 		else:
 			tweet.likes.add(request.user)
 
-		return redirect('home')
-
-
-
+		return redirect(request.META.get("HTTP_REFERER"))
 
 	else:
 		messages.success(request, ("You Must Be Logged In To View That Page..."))
