@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for twitter on 2024-02-07T10:52:51-03:00
+# fly.toml app configuration file generated for twitter-snowy-pond-7729 on 2024-02-07T11:27:56-03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'twitter'
+app = 'twitter-snowy-pond-7729'
 primary_region = 'gru'
 console_command = '/code/manage.py shell'
 
